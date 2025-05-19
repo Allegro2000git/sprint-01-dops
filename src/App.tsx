@@ -2,6 +2,7 @@ import {useState} from "react";
 import './App.css';
 import {Todolist} from './Todolist';
 import {v1} from 'uuid';
+import {Button} from "./components/Button";
 
 
 type ObjectType = {
@@ -21,7 +22,7 @@ export type FilterValuesType = "all" | "active" | "completed";
 
 export const App = ()=> {
 
-    const [todo, setTodo] = useState<Array<ObjectType>>([
+    const [todo, setTodo] = useState<ObjectType[]>([
         {
             title: "What to learn",
             filter: "all",
@@ -139,14 +140,14 @@ export const App = ()=> {
         }
     ])
 
-    function removeTask(taskId: string, todolistId: number) {
+    function removeTask(todolistId: number, taskId: string) {
         setTodo(todo.map((el, index) => index === todolistId ? {
             ...el,
             tasks: [...el.tasks.filter(fl => fl.taskId !== taskId)]
         } : el))
     }
 
-    function addTask(title: string, todolistId: number) {
+    function addTask(todolistId: number, title: string) {
         let newTask: TasksType = {taskId: v1(), title: title, isDone: false};
         setTodo(todo.map((el, index) => index === todolistId ? {...el, tasks: [newTask, ...el.tasks]} : el))
     }
@@ -158,7 +159,7 @@ export const App = ()=> {
         } : el))
     }
 
-    function changeFilter(value: FilterValuesType, todolistId: number) {
+    function changeFilter(todolistId: number, value: FilterValuesType) {
         setTodo(todo.map((el, index) => index === todolistId ? {...el, filter: value} : el))
     }
 
@@ -166,8 +167,8 @@ export const App = ()=> {
         setTodo(todo.filter((el, index) => index !== todolistId))
     }
 
-    const removeAllTodolists = () => {
-        //todo: САМОСТОЯТЕЛЬНО
+   const removeAllTodolists = () => {
+        setTodo([])
     }
 
     const removeAllTasksInOneTodo = (todolistId: number) => {
@@ -180,7 +181,7 @@ export const App = ()=> {
     return (
         <div className="App">
             <div>
-
+                <Button title={"Delete All Lists"} onClick={removeAllTodolists}/>
             </div>
 
             {
@@ -189,10 +190,10 @@ export const App = ()=> {
                     let tasksForTodolist = allTodolistTasks;
 
                     if (tl.filter === "active") {
-                        tasksForTodolist = allTodolistTasks.filter(t => t.isDone === false);
+                        tasksForTodolist = allTodolistTasks.filter(t => !t.isDone);
                     }
                     if (tl.filter === "completed") {
-                        tasksForTodolist = allTodolistTasks.filter(t => t.isDone === true);
+                        tasksForTodolist = allTodolistTasks.filter(t => t.isDone);
                     }
 
                     return <Todolist
@@ -207,7 +208,7 @@ export const App = ()=> {
                         changeTaskStatus={changeStatus}
                         filter={tl.filter}
                         removeTodolist={removeTodolist}
-
+                        removeAllTasksInOneTodo={removeAllTasksInOneTodo}
                     />
                 })
             }
